@@ -124,7 +124,7 @@ namespace associet_backend.Controllers
             catch (Exception ex)
             {
                 responseObj.status = 500;
-                responseObj.message = "something went wrong.";
+                responseObj.message = "something went wrong."+ ex.ToString();
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
