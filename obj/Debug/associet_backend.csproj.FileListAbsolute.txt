@@ -172,3 +172,4 @@ G:\Project\Om associet\Backend\Associate_backend\obj\Debug\associet_backend.cspr
 G:\Project\Om associet\Backend\Associate_backend\obj\Debug\associet_backend.csproj.CopyComplete
 G:\Project\Om associet\Backend\Associate_backend\obj\Debug\associet_backend.dll
 G:\Project\Om associet\Backend\Associate_backend\obj\Debug\associet_backend.pdb
+G:\Project\Om associet\Backend\Associate_backend\bin\System.Web.Cors.dll

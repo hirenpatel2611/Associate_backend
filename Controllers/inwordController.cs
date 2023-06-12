@@ -13,7 +13,7 @@ namespace associet_backend.Controllers
     public class inwordController : ApiController
     {
         SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
-
+        SqlConnection cn1 = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
         public class inword_docs
         {
             public int id { get; set; }
@@ -38,8 +38,10 @@ namespace associet_backend.Controllers
             public DataTable data { get; set; }
         }
 
+
         public class RequestPartyMasterObj
         {
+            public int id{ get; set; }
             public string inword_no { get; set; }
             public string date { get; set; }
             public string docs_type { get; set; }
@@ -51,8 +53,34 @@ namespace associet_backend.Controllers
             public string contact_number { get; set; }
             public string address { get; set; }
         }
+        public class listInwordResObj
+        {
+            public int id { get; set; }
+            public string inword_no { get; set; }
+            public string date { get; set; }
+            public string docs_type { get; set; }
+            public object scheme_name;
+            public string scheme_name_id { get; set; }
+            public string unit_no { get; set; }
+            public string name { get; set; }
+            public string pan_no { get; set; }
+            public string adhar_number { get; set; }
+            public string contact_number { get; set; }
+            public string address { get; set; }
+            public string created_at { get; set; }
+            public string update_at { get; set; }
+        }
+        public class ResponseObjnew
+        {
+            public int status { get; set; }
+            public string message { get; set; }
+            public List<listInwordResObj> data { get; set; }
+        }
+
         RequestPartyMasterObj requestPartyMasterObj = new RequestPartyMasterObj();
         ResponseObj responseObj = new ResponseObj();
+        ResponseObjnew responseObjNew = new ResponseObjnew();
+        
 
         [Route("api/inwords")]
         [HttpGet]
@@ -60,37 +88,49 @@ namespace associet_backend.Controllers
         {
             SqlCommand cmd = new SqlCommand("select * from inword_docs", cn);
             DataTable dt = new DataTable();
-            dt.Columns.Add("id");
-            dt.Columns.Add("date");
-            dt.Columns.Add("docs_type");
-            dt.Columns.Add("inword_no");
-            dt.Columns.Add("scheme_name");
-            dt.Columns.Add("unit_no");
-            dt.Columns.Add("name");
-            dt.Columns.Add("pan_no");
-            dt.Columns.Add("adhar_number");
-            dt.Columns.Add("contact_number");
-            dt.Columns.Add("address");
-            dt.Columns.Add("created_at");
-            dt.Columns.Add("update_at");
-
-
             try
             {
                 cn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
+                    List<listInwordResObj> data = new List<listInwordResObj>();
                     while (reader.Read())
                     {
-                        dt.Rows.Add(reader["id"].ToString(), reader["date"].ToString(), reader["docs_type"].ToString(), reader["inword_no"].ToString(),
-                            reader["scheme_name"].ToString(), reader["unit_no"].ToString(), reader["name"].ToString(), reader["pan_no"].ToString(),
-                            reader["adhar_number"].ToString(), reader["contact_number"].ToString(), reader["address"].ToString(), reader["created_at"].ToString(), reader["update_at"].ToString());
+                        string strintId = reader["scheme_name"].ToString();
+
+                        string name_of_scheme = "";
+                        cn1.Open();
+                        SqlCommand scmd = new SqlCommand("select * from party_master where id = '" + strintId.ToString() + "' ", cn1);
+                        SqlDataReader sdr = scmd.ExecuteReader();
+                        if (sdr.Read())
+                        {
+                            name_of_scheme = sdr["name_of_scheme"].ToString();
+                        }
+                        cn1.Close();
+
+                        listInwordResObj LlistInwordResObj = new listInwordResObj();
+                        LlistInwordResObj.id = Convert.ToInt32(reader["id"]);
+                        LlistInwordResObj.date = reader["date"].ToString();
+                        LlistInwordResObj.docs_type = reader["docs_type"].ToString();
+                        LlistInwordResObj.inword_no = reader["inword_no"].ToString();
+                        LlistInwordResObj.scheme_name = name_of_scheme;
+                        LlistInwordResObj.unit_no = reader["unit_no"].ToString();
+                        LlistInwordResObj.name = reader["name"].ToString();
+                        LlistInwordResObj.pan_no = reader["pan_no"].ToString();
+                        LlistInwordResObj.adhar_number = reader["adhar_number"].ToString();
+                        LlistInwordResObj.contact_number = reader["contact_number"].ToString();
+                        LlistInwordResObj.address = reader["address"].ToString();
+                        LlistInwordResObj.created_at = reader["created_at"].ToString();
+                        LlistInwordResObj.update_at = reader["update_at"].ToString();
+
+                        data.Add(LlistInwordResObj);
                     }
-                    responseObj.status = 200;
-                    responseObj.message = "Data found";
-                    responseObj.data = dt;
-                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                    responseObjNew.status = 200;
+                    responseObjNew.message = "Data found";
+                    responseObjNew.data = data.ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
+                    
                 }
                 else
                 {
@@ -119,37 +159,51 @@ namespace associet_backend.Controllers
         {
             SqlCommand cmd = new SqlCommand("select * from inword_docs where id='" + id + "'", cn);
             DataTable dt = new DataTable();
-            dt.Columns.Add("id");
-            dt.Columns.Add("date");
-            dt.Columns.Add("docs_type");
-            dt.Columns.Add("inword_no");
-            dt.Columns.Add("scheme_name");
-            dt.Columns.Add("unit_no");
-            dt.Columns.Add("name");
-            dt.Columns.Add("pan_no");
-            dt.Columns.Add("adhar_number");
-            dt.Columns.Add("contact_number");
-            dt.Columns.Add("address");
-            dt.Columns.Add("created_at");
-            dt.Columns.Add("update_at");
-
-
             try
             {
                 cn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows)
                 {
+                    List<listInwordResObj> data = new List<listInwordResObj>();
                     while (reader.Read())
                     {
-                        dt.Rows.Add(reader["id"].ToString(), reader["date"].ToString(), reader["docs_type"].ToString(), reader["inword_no"].ToString(),
-                            reader["scheme_name"].ToString(), reader["unit_no"].ToString(), reader["name"].ToString(), reader["pan_no"].ToString(),
-                            reader["adhar_number"].ToString(), reader["contact_number"].ToString(), reader["address"].ToString(), reader["created_at"].ToString(), reader["update_at"].ToString());
+                        string strintId = reader["scheme_name"].ToString();
+
+                        string name_of_scheme = "";
+                        cn1.Open();
+                        SqlCommand scmd = new SqlCommand("select * from party_master where id = '" + strintId.ToString() + "' ", cn1);
+                        SqlDataReader sdr = scmd.ExecuteReader();
+                        if (sdr.Read())
+                        {
+                            name_of_scheme = sdr["name_of_scheme"].ToString();
+                        }
+                        cn1.Close();
+                        //dt.Rows.Add(reader["id"].ToString(), reader["date"].ToString(), reader["docs_type"].ToString(), reader["inword_no"].ToString(),
+                        //    reader["scheme_name"].ToString(), reader["unit_no"].ToString(), reader["name"].ToString(), reader["pan_no"].ToString(),
+                        //    reader["adhar_number"].ToString(), reader["contact_number"].ToString(), reader["address"].ToString(), reader["created_at"].ToString(), reader["update_at"].ToString());
+
+                        listInwordResObj LlistInwordResObj = new listInwordResObj();
+                        LlistInwordResObj.id = Convert.ToInt32(reader["id"]);
+                        LlistInwordResObj.date = reader["date"].ToString();
+                        LlistInwordResObj.docs_type = reader["docs_type"].ToString();
+                        LlistInwordResObj.inword_no = reader["inword_no"].ToString();
+                        LlistInwordResObj.scheme_name = name_of_scheme;
+                        LlistInwordResObj.scheme_name_id = strintId;
+                        LlistInwordResObj.unit_no = reader["unit_no"].ToString();
+                        LlistInwordResObj.name = reader["name"].ToString();
+                        LlistInwordResObj.pan_no = reader["pan_no"].ToString();
+                        LlistInwordResObj.adhar_number = reader["adhar_number"].ToString();
+                        LlistInwordResObj.contact_number = reader["contact_number"].ToString();
+                        LlistInwordResObj.address = reader["address"].ToString();
+                        LlistInwordResObj.created_at = reader["created_at"].ToString();
+                        LlistInwordResObj.update_at = reader["update_at"].ToString();
+                        data.Add(LlistInwordResObj);
                     }
-                    responseObj.status = 200;
-                    responseObj.message = "Data found";
-                    responseObj.data = dt;
-                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                    responseObjNew.status = 200;
+                    responseObjNew.message = "Data found";
+                    responseObjNew.data = data.ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
                 }
                 else
                 {
@@ -202,9 +256,54 @@ namespace associet_backend.Controllers
 
                 cn.Open();
                 cmd.Connection = cn;
-                cmd.CommandText = "insert into inword_docs (inword_no,scheme_name,unit_no,name,date,docs_type,pan_no,adhar_number,contact_number,address,created_at,update_at) values " +
-                    "('"+ r.ToString() +"','" + requestPartyMasterObj.scheme_name + "','" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "','" + requestPartyMasterObj.date + "','" + requestPartyMasterObj.docs_type + "','" + requestPartyMasterObj.pan_no + "'," +
-                    "'" + requestPartyMasterObj.adhar_number + "','" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + DateTime.Now + "','" + DateTime.Now + "')";
+                cmd.CommandText = "insert into inword_docs "+
+                    "(inword_no,scheme_name,unit_no,name,date,docs_type,pan_no,adhar_number,contact_number,address,created_at,update_at) values " +
+                    "('"+ r.ToString() +"','" + requestPartyMasterObj.scheme_name + "','" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "','" + requestPartyMasterObj.date + "',"+
+                    "'" + requestPartyMasterObj.docs_type + "','" + requestPartyMasterObj.pan_no + "','" + requestPartyMasterObj.adhar_number + "',"+
+                    "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + DateTime.Now + "','" + DateTime.Now + "')";
+                cmd.ExecuteNonQuery();
+                cmd.Clone();
+                cn.Close();
+                responseObj.status = 200;
+                responseObj.message = "Inword added successfilly.";
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            catch (Exception ex)
+            {
+                responseObj.status = 500;
+                responseObj.message = "something went wrong." + ex.ToString();
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        [Route("api/inwords/{id}")]
+        [HttpPut]
+        public HttpResponseMessage UpdateParty(int id, [FromBody] RequestPartyMasterObj requestPartyMasterObj)
+        {
+            SqlCommand cmd = new SqlCommand();
+            DataTable dt = new DataTable();
+            try
+            {
+                cn.Open();
+                cmd.Connection = cn;
+                cmd.CommandText = "update inword_docs set " +
+                    "scheme_name='"+ requestPartyMasterObj.scheme_name + "',"+
+                    "unit_no='" + requestPartyMasterObj.unit_no + "'," +
+                    "name='" + requestPartyMasterObj.name + "'," +
+                    "date='" + requestPartyMasterObj.date + "'," +
+                    "docs_type='" + requestPartyMasterObj.docs_type + "'," +
+                    "pan_no='" + requestPartyMasterObj.pan_no + "'," +
+                    "adhar_number='" + requestPartyMasterObj.adhar_number + "'," +
+                    "contact_number='" + requestPartyMasterObj.contact_number + "'," +
+                    "address='" + requestPartyMasterObj.address + "'," +
+                    "update_at='" + DateTime.Now + "' where id='"+ requestPartyMasterObj.id + "'";
+
                 cmd.ExecuteNonQuery();
                 cmd.Clone();
                 cn.Close();

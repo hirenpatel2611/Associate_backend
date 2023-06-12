@@ -91,7 +91,7 @@ namespace associet_backend.Controllers
             catch (Exception ex)
             {
                 responseObj.status = 500;
-                responseObj.message = "something went wrong.";
+                responseObj.message = "something went wrong." + ex.ToString();
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
@@ -145,7 +145,7 @@ namespace associet_backend.Controllers
             catch (Exception ex)
             {
                 responseObj.status = 500;
-                responseObj.message = "something went wrong.";
+                responseObj.message = "something went wrong." + ex.ToString();
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
@@ -168,6 +168,8 @@ namespace associet_backend.Controllers
                 cmd.CommandText = "insert into party_master (name_of_company,name_of_scheme,contact_person,contact_number,address,no_of_units,created_at,update_at) values " +
                     "('" + requestPartyMasterObj.name_of_company + "','" + requestPartyMasterObj.name_of_scheme + "','" + requestPartyMasterObj.contact_person + "',"+
                     "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + requestPartyMasterObj.no_of_units + "','"+ DateTime.Now + "','" + DateTime.Now + "')";
+                
+
                 cmd.ExecuteNonQuery();
                 cmd.Clone();
                 cn.Close();
@@ -179,7 +181,112 @@ namespace associet_backend.Controllers
             catch (Exception ex)
             {
                 responseObj.status = 500;
-                responseObj.message = "something went wrong.";
+                responseObj.message = "something went wrong." + ex.ToString();
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        [Route("api/masters/party/{id}")]
+        [HttpPut]
+        public HttpResponseMessage UpdateParty(int id, [FromBody] RequestPartyMasterObj requestPartyMasterObj)
+        {
+            SqlCommand cmd = new SqlCommand();
+            DataTable dt = new DataTable();
+            try
+            {
+                SqlCommand ucmd = new SqlCommand("UPDATE party_master SET name_of_company=@name_of_company,name_of_scheme=@name_of_scheme,contact_person=@contact_person,"+
+                    "contact_number=@contact_number,address=@address,no_of_units=@no_of_units,update_at=@update_at  Where  id='" + id + "'", cn);
+
+                ucmd.Parameters.Add("@name_of_company", SqlDbType.NVarChar).Value = requestPartyMasterObj.name_of_company;
+                ucmd.Parameters.Add("@name_of_scheme", SqlDbType.NVarChar).Value = requestPartyMasterObj.name_of_scheme;
+                ucmd.Parameters.Add("@contact_person", SqlDbType.NVarChar).Value = requestPartyMasterObj.contact_person;
+                ucmd.Parameters.Add("@contact_number", SqlDbType.NVarChar).Value = requestPartyMasterObj.contact_number;
+                ucmd.Parameters.Add("@address", SqlDbType.NVarChar).Value = requestPartyMasterObj.address;
+                ucmd.Parameters.Add("@no_of_units", SqlDbType.NVarChar).Value = requestPartyMasterObj.no_of_units;
+                ucmd.Parameters.Add("@update_at", SqlDbType.NVarChar).Value = DateTime.Now;
+
+                ucmd.Connection = cn;
+                cn.Open();
+                ucmd.ExecuteNonQuery();
+                ucmd.Clone();
+                cn.Close();
+                responseObj.status = 200;
+                responseObj.message = "Party details updated successfilly.";
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            catch (Exception ex)
+            {
+                responseObj.status = 500;
+                responseObj.message = "something went wrong." + ex.ToString();
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        [Route("api/masters/schemes")]
+        [HttpGet]
+        public HttpResponseMessage GetSchemes()
+      {
+            var paramsD = Request.RequestUri.Query;
+            string[] paramsDArray = paramsD.Split('?');
+            string searchQuery = "";
+            if (paramsDArray.Length > 1)
+            {
+                string[] paramsSplitComa = paramsDArray[1].Split(',');
+                string[] paramsFinal = paramsDArray[1].Split('=');
+                searchQuery = paramsFinal[1].ToString();
+            }
+            SqlCommand cmd = new SqlCommand("select * from party_master where name_of_scheme like '%"+ searchQuery + "%'", cn);
+            DataTable dt = new DataTable();
+            dt.Columns.Add("id");
+            dt.Columns.Add("name_of_company");
+            dt.Columns.Add("name_of_scheme");
+            dt.Columns.Add("contact_person");
+            dt.Columns.Add("contact_number");
+            dt.Columns.Add("address");
+            dt.Columns.Add("no_of_units");
+            dt.Columns.Add("created_at");
+            dt.Columns.Add("update_at");
+
+
+            try
+            {
+                cn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        dt.Rows.Add(reader["id"].ToString(), reader["name_of_company"].ToString(), reader["name_of_scheme"].ToString(), reader["contact_person"].ToString(),
+                            reader["contact_number"].ToString(), reader["address"].ToString(), reader["no_of_units"].ToString(), reader["created_at"].ToString(), reader["update_at"].ToString());
+                    }
+                    responseObj.status = 200;
+                    responseObj.message = "Data found";
+                    responseObj.data = dt;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                }
+                else
+                {
+                    responseObj.status = 401;
+                    responseObj.message = "Party data not found.";
+                    responseObj.data = dt;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                }
+            }
+            catch (Exception ex)
+            {
+                responseObj.status = 500;
+                responseObj.message = "something went wrong." + ex.ToString();
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
