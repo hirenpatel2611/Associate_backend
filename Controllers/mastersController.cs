@@ -13,6 +13,8 @@ namespace associet_backend.Controllers
     public class mastersController : ApiController
     {
         SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
+        SqlConnection cn1 = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
+        CommonVeriables commonVerb = new CommonVeriables();
 
         public class party_master
         {
@@ -27,11 +29,14 @@ namespace associet_backend.Controllers
             public string update_at { get; set; }
         }
 
+        
+
         public class ResponseObj
         {
             public int status { get; set; }
             public string message { get; set; }
             public DataTable data { get; set; }
+            public CommonVeriables.ResponseMeta meta { get; set; }
         }
 
         public class RequestPartyMasterObj
@@ -44,14 +49,23 @@ namespace associet_backend.Controllers
             public string address { get; set; }
             public string no_of_units { get; set; }
         }
+        
         RequestPartyMasterObj requestPartyMasterObj = new RequestPartyMasterObj();
         ResponseObj responseObj = new ResponseObj();
+        CommonVeriables.ResponseMeta responseMeta = new CommonVeriables.ResponseMeta();
+
+        
 
         [Route("api/masters/party")]
         [HttpGet]
-        public HttpResponseMessage Getparty()
+        public HttpResponseMessage Getparty(string search = "", int page = 1, int pageSize = 10)
         {
-            SqlCommand cmd = new SqlCommand("select * from party_master", cn);
+            var skip = (page - 1) * pageSize;
+            string SQL = "select * from party_master where name_of_company like '%" + search + "%' or name_of_scheme like '%" + search + "%'" +
+                "or contact_number like '%" + search + "%' ";
+            String SQLOrderBy = "ORDER BY created_at ASC ";
+            String limitedSQL = commonVerb.GetPaginatedSQL(skip, pageSize, SQL, SQLOrderBy);
+            SqlCommand cmd = new SqlCommand(limitedSQL, cn);
             DataTable dt = new DataTable();
             dt.Columns.Add("id");
             dt.Columns.Add("name_of_company");
@@ -63,6 +77,20 @@ namespace associet_backend.Controllers
             dt.Columns.Add("created_at");
             dt.Columns.Add("update_at");
 
+            int totalRows = 0;
+            cn1.Open();
+            SqlCommand scmd = new SqlCommand(SQL, cn1);
+            SqlDataReader sdr = scmd.ExecuteReader();
+            if (sdr.HasRows)
+            {
+                while (sdr.Read())
+                {
+                    totalRows++;
+                }
+
+            }
+            scmd.Dispose();
+            cn1.Close();
 
             try
             {
@@ -75,9 +103,17 @@ namespace associet_backend.Controllers
                         dt.Rows.Add(reader["id"].ToString(), reader["name_of_company"].ToString(), reader["name_of_scheme"].ToString(), reader["contact_person"].ToString(),
                             reader["contact_number"].ToString(), reader["address"].ToString(), reader["no_of_units"].ToString(), reader["created_at"].ToString(), reader["update_at"].ToString());
                     }
+
+                    responseMeta.per_page = pageSize;
+                    responseMeta.current_page = page;
+                    responseMeta.last_page = totalRows/pageSize;
+                    responseMeta.total = totalRows;
+                    responseMeta.current_page_record = dt.Rows.Count;
+
                     responseObj.status = 200;
                     responseObj.message = "Data found";
                     responseObj.data = dt;
+                    responseObj.meta = responseMeta;
                     return Request.CreateResponse(HttpStatusCode.OK, responseObj);
                 }
                 else
@@ -167,7 +203,7 @@ namespace associet_backend.Controllers
                 cmd.Connection = cn;
                 cmd.CommandText = "insert into party_master (name_of_company,name_of_scheme,contact_person,contact_number,address,no_of_units,created_at,update_at) values " +
                     "('" + requestPartyMasterObj.name_of_company + "','" + requestPartyMasterObj.name_of_scheme + "','" + requestPartyMasterObj.contact_person + "',"+
-                    "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + requestPartyMasterObj.no_of_units + "','"+ DateTime.Now + "','" + DateTime.Now + "')";
+                    "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + Convert.ToInt32(requestPartyMasterObj.no_of_units) + "','"+ DateTime.Now + "','" + DateTime.Now + "')";
                 
 
                 cmd.ExecuteNonQuery();

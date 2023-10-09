@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <_PublishTargetUrl>G:\Project\Om associet\Backend\Associate_backend\bin\app.publish\</_PublishTargetUrl>
-    <History>True|2023-06-10T12:10:01.6175684Z;</History>
+    <History>True|2023-07-12T16:28:20.3954503Z;True|2023-07-02T15:41:40.1033562+05:30;True|2023-06-17T19:51:20.9417976+05:30;True|2023-06-17T18:55:24.6343085+05:30;True|2023-06-10T17:40:01.6175684+05:30;</History>
   </PropertyGroup>
   <ItemGroup>
     <File Include="Areas/HelpPage/HelpPage.css">
@@ -78,10 +78,10 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
       <publishTime>10/09/2013 16:29:20</publishTime>
     </File>
     <File Include="bin/associet_backend.dll">
-      <publishTime>06/10/2023 17:39:59</publishTime>
+      <publishTime>07/12/2023 21:58:18</publishTime>
     </File>
     <File Include="bin/associet_backend.pdb">
-      <publishTime>06/10/2023 17:39:59</publishTime>
+      <publishTime>07/12/2023 21:58:18</publishTime>
     </File>
     <File Include="bin/EntityFramework.dll">
       <publishTime>08/08/2012 18:00:50</publishTime>

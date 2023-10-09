@@ -13,7 +13,7 @@ namespace associet_backend.Controllers
     public class userController : ApiController
     {
         SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
-
+        CommonVeriables commonVerb = new CommonVeriables();
         public class user_master
         {
             public int id { get; set; }
@@ -38,7 +38,7 @@ namespace associet_backend.Controllers
         ResponseObj responseObj = new ResponseObj();
 
         [HttpGet]
-        public HttpResponseMessage Get()
+        public HttpResponseMessage Get(string search = "", int page = 1, int pageSize = 10)
         {
             SqlCommand cmd = new SqlCommand("select * from user_master", cn);
             DataSet ds = new DataSet();

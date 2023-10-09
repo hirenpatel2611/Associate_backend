@@ -14,6 +14,7 @@ namespace associet_backend.Controllers
     {
         SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
         SqlConnection cn1 = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
+        CommonVeriables commonVerb = new CommonVeriables();
         public class inword_docs
         {
             public int id { get; set; }
@@ -36,6 +37,7 @@ namespace associet_backend.Controllers
             public int status { get; set; }
             public string message { get; set; }
             public DataTable data { get; set; }
+            public CommonVeriables.ResponseMeta meta { get; set; }
         }
 
 
@@ -75,19 +77,41 @@ namespace associet_backend.Controllers
             public int status { get; set; }
             public string message { get; set; }
             public List<listInwordResObj> data { get; set; }
+            public CommonVeriables.ResponseMeta meta { get; set; }
         }
 
         RequestPartyMasterObj requestPartyMasterObj = new RequestPartyMasterObj();
         ResponseObj responseObj = new ResponseObj();
         ResponseObjnew responseObjNew = new ResponseObjnew();
-        
+        CommonVeriables.ResponseMeta responseMeta = new CommonVeriables.ResponseMeta();
 
         [Route("api/inwords")]
         [HttpGet]
-        public HttpResponseMessage Getparty()
+        public HttpResponseMessage Getparty(string search = "", int page = 1, int pageSize = 10)
         {
-            SqlCommand cmd = new SqlCommand("select * from inword_docs", cn);
+            var skip = (page - 1) * pageSize;
+            string SQL = "select * from inword_docs where unit_no like '%" + search + "%' or name like '%" + search + "%'" +
+                "or contact_number like '%" + search + "%' ";
+            String SQLOrderBy = "ORDER BY created_at ASC ";
+            String limitedSQL = commonVerb.GetPaginatedSQL(skip, pageSize, SQL, SQLOrderBy);
+            SqlCommand cmd = new SqlCommand(limitedSQL, cn);
             DataTable dt = new DataTable();
+
+            int totalRows = 0;
+            cn1.Open();
+            SqlCommand countcmd = new SqlCommand(SQL, cn1);
+            SqlDataReader countsdr = countcmd.ExecuteReader();
+            if (countsdr.HasRows)
+            {
+                while (countsdr.Read())
+                {
+                    totalRows++;
+                }
+
+            }
+            countcmd.Dispose();
+            cn1.Close();
+
             try
             {
                 cn.Open();
@@ -126,9 +150,16 @@ namespace associet_backend.Controllers
 
                         data.Add(LlistInwordResObj);
                     }
+                    responseMeta.per_page = pageSize;
+                    responseMeta.current_page = page;
+                    responseMeta.last_page = totalRows / pageSize;
+                    responseMeta.total = totalRows;
+                    responseMeta.current_page_record = data.Count;
+
                     responseObjNew.status = 200;
                     responseObjNew.message = "Data found";
                     responseObjNew.data = data.ToList();
+                    responseObjNew.meta = responseMeta;
                     return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
                     
                 }
@@ -316,6 +347,84 @@ namespace associet_backend.Controllers
             {
                 responseObj.status = 500;
                 responseObj.message = "something went wrong." + ex.ToString();
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        [Route("api/inwords/unit_no")]
+        [HttpGet]
+        public HttpResponseMessage GetunitNo()
+        {
+            string schemeId = "";
+            var paramsD = Request.RequestUri.Query;
+            string[] paramsDArray = paramsD.Split('?');
+            string searchQuery = "";
+            if (paramsDArray.Length > 1)
+            {
+                string[] paramsSplitComa = paramsDArray[1].Split('&');
+                string[] paramsFinal = paramsSplitComa[0].Split('=');
+                searchQuery = paramsFinal[1].ToString();
+                if (paramsSplitComa.Length > 1)
+                {
+                    string[] paramsFinalSchemeId = paramsSplitComa[1].Split('=');
+                    if (paramsFinalSchemeId.Length > 1)
+                    {
+                        schemeId = paramsFinalSchemeId[1].ToString();
+                    }
+                }
+            }
+            SqlCommand cmd = new SqlCommand("select * from inword_docs where (unit_no like '%" + searchQuery + "%') and scheme_name='" + schemeId.ToString() + "'", cn);
+            DataTable dt = new DataTable();
+            try
+            {
+                cn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    List<listInwordResObj> data = new List<listInwordResObj>();
+                    while (reader.Read())
+                    {
+                        
+                        listInwordResObj LlistInwordResObj = new listInwordResObj();
+                        LlistInwordResObj.id = Convert.ToInt32(reader["id"]);
+                        LlistInwordResObj.date = reader["date"].ToString();
+                        LlistInwordResObj.docs_type = reader["docs_type"].ToString();
+                        LlistInwordResObj.inword_no = reader["inword_no"].ToString();
+                        LlistInwordResObj.scheme_name = reader["scheme_name"].ToString();
+                        LlistInwordResObj.unit_no = reader["unit_no"].ToString();
+                        LlistInwordResObj.name = reader["name"].ToString();
+                        LlistInwordResObj.pan_no = reader["pan_no"].ToString();
+                        LlistInwordResObj.adhar_number = reader["adhar_number"].ToString();
+                        LlistInwordResObj.contact_number = reader["contact_number"].ToString();
+                        LlistInwordResObj.address = reader["address"].ToString();
+                        LlistInwordResObj.created_at = reader["created_at"].ToString();
+                        LlistInwordResObj.update_at = reader["update_at"].ToString();
+
+                        data.Add(LlistInwordResObj);
+                    }
+                    responseObjNew.status = 200;
+                    responseObjNew.message = "Data found";
+                    responseObjNew.data = data.ToList();
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
+
+                }
+                else
+                {
+                    responseObj.status = 401;
+                    responseObj.message = "Party data not found.";
+                    responseObj.data = dt;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                }
+            }
+            catch (Exception ex)
+            {
+                responseObj.status = 500;
+                responseObj.message = "something went wrong.";
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }

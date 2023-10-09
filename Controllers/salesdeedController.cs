@@ -13,6 +13,8 @@ namespace associet_backend.Controllers
     public class salesdeedController : ApiController
     {
         SqlConnection cn = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
+        SqlConnection cn1 = new SqlConnection(ConfigurationManager.ConnectionStrings["database_ConnectionString"].ConnectionString);
+        CommonVeriables commonVerb = new CommonVeriables();
         string paramsNames = "salesdeed_id,date,scheme_name,unit_no,name,inword_no,is_signed,pde_number,token_date_and_time,register_number,register_date,delivery_date,delivery_person,file_url,status,created_at,update_at";
         public class inword_docs
         {
@@ -45,6 +47,7 @@ namespace associet_backend.Controllers
 
         public class RequestPartyMasterObj
         {
+            public int id { get; set; }
             public string salesdeed_id { get; set; }
             public string date { get; set; }
             public string scheme_name { get; set; }
@@ -66,7 +69,7 @@ namespace associet_backend.Controllers
 
         [Route("api/salesdeed")]
         [HttpGet]
-        public HttpResponseMessage Getparty()
+        public HttpResponseMessage GetSalesDeedList(string search = "", int page = 1, int pageSize = 10)
         {
             SqlCommand cmd = new SqlCommand("select * from salesdeed", cn);
             DataTable dt = new DataTable();
@@ -98,9 +101,30 @@ namespace associet_backend.Controllers
                 {
                     while (reader.Read())
                     {
+                        string strintId = reader["scheme_name"].ToString();
+
+                        string name_of_scheme = "";
+                        string unit_no = "";
+                        cn1.Open();
+                        SqlCommand scmd = new SqlCommand("select * from party_master where id = '" + strintId.ToString() + "' ", cn1);
+                        SqlDataReader sdr = scmd.ExecuteReader();
+                        if (sdr.Read())
+                        {
+                            name_of_scheme = sdr["name_of_scheme"].ToString();
+                        }
+                        scmd.Dispose();
+                        cn1.Close();
+                        cn1.Open();
+                        SqlCommand inwardcmd = new SqlCommand("select * from inword_docs where id = '" + reader["unit_no"].ToString() + "' ", cn1);
+                        SqlDataReader inwarddr = inwardcmd.ExecuteReader();
+                        if (inwarddr.Read())
+                        {
+                            unit_no = inwarddr["unit_no"].ToString();
+                        }
+                        cn1.Close();
                         dt.Rows.Add(reader["id"].ToString(), reader["salesdeed_id"].ToString(),
-                                    reader["date"].ToString(), reader["scheme_name"].ToString(),
-                                    reader["unit_no"].ToString(), reader["name"].ToString(),
+                                    reader["date"].ToString(), name_of_scheme.ToString(),
+                                    unit_no.ToString(), reader["name"].ToString(),
                                     reader["inword_no"].ToString(), reader["is_signed"].ToString(),
                                     reader["pde_number"].ToString(), reader["token_date_and_time"].ToString(),
                                     reader["register_number"].ToString(), reader["register_date"].ToString(),
@@ -136,7 +160,7 @@ namespace associet_backend.Controllers
 
         [Route("api/salesdeed/{id}")]
         [HttpGet]
-        public HttpResponseMessage Getparty(int id)
+        public HttpResponseMessage GetSalesDeed(int id)
         {
             SqlCommand cmd = new SqlCommand("select * from salesdeed where id='" + id + "'", cn);
             DataTable dt = new DataTable();
@@ -167,9 +191,30 @@ namespace associet_backend.Controllers
                 {
                     while (reader.Read())
                     {
+                        string strintId = reader["scheme_name"].ToString();
+
+                        string name_of_scheme = "";
+                        string unit_no = "";
+                        cn1.Open();
+                        SqlCommand scmd = new SqlCommand("select * from party_master where id = '" + strintId.ToString() + "' ", cn1);
+                        SqlDataReader sdr = scmd.ExecuteReader();
+                        if (sdr.Read())
+                        {
+                            name_of_scheme = sdr["name_of_scheme"].ToString();
+                        }
+                        scmd.Dispose();
+                        cn1.Close();
+                        cn1.Open();
+                        SqlCommand inwardcmd = new SqlCommand("select * from inword_docs where id = '" + reader["unit_no"].ToString() + "' ", cn1);
+                        SqlDataReader inwarddr = inwardcmd.ExecuteReader();
+                        if (inwarddr.Read())
+                        {
+                            unit_no = inwarddr["unit_no"].ToString();
+                        }
+                        cn1.Close();
                         dt.Rows.Add(reader["id"].ToString(), reader["salesdeed_id"].ToString(),
-                                    reader["date"].ToString(), reader["scheme_name"].ToString(),
-                                    reader["unit_no"].ToString(), reader["name"].ToString(),
+                                    reader["date"].ToString(), name_of_scheme.ToString(),
+                                    unit_no.ToString(), reader["name"].ToString(),
                                     reader["inword_no"].ToString(), reader["is_signed"].ToString(),
                                     reader["pde_number"].ToString(), reader["token_date_and_time"].ToString(),
                                     reader["register_number"].ToString(), reader["register_date"].ToString(),
@@ -205,7 +250,7 @@ namespace associet_backend.Controllers
 
         [Route("api/salesdeed")]
         [HttpPost]
-        public HttpResponseMessage CreateParty([FromBody] RequestPartyMasterObj requestPartyMasterObj)
+        public HttpResponseMessage CreateSalesdeed([FromBody] RequestPartyMasterObj requestPartyMasterObj)
         {
             SqlCommand cmd = new SqlCommand();
             DataTable dt = new DataTable();
@@ -230,23 +275,129 @@ namespace associet_backend.Controllers
 
                 }
                 cn.Close();
-
+                string status = "pending";
+                if (requestPartyMasterObj.is_signed == "true")
+                {
+                    status = "signed";
+                }
+                string paramsNamesc = "salesdeed_id,date,scheme_name,unit_no,name,inword_no,is_signed,status,created_at,update_at";
                 cn.Open();
                 cmd.Connection = cn;
-                cmd.CommandText = "insert into salesdeed (" + paramsNames + ") values " +
-                    "('" + r.ToString() + "','" + requestPartyMasterObj.scheme_name + "'," +
+                cmd.CommandText = "insert into salesdeed (" + paramsNamesc + ") values " +
+                    "('" + r.ToString() + "','" + requestPartyMasterObj.date + "','" + requestPartyMasterObj.scheme_name + "'," +
                     "'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
                     "'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
-                    "'" + requestPartyMasterObj.pde_number + "','" + requestPartyMasterObj.token_date_and_time + "'," +
-                    "'" + requestPartyMasterObj.register_number + "','" + requestPartyMasterObj.register_date + "'," +
-                    "'" + requestPartyMasterObj.delivery_date + "','" + requestPartyMasterObj.delivery_person + "'," +
-                    "'" + requestPartyMasterObj.file_url + "','" + requestPartyMasterObj.status + "'," +
+                    "'" + status.ToString() + "'," +
                     "'" + DateTime.Now + "','" + DateTime.Now + "')";
+                //"insert into salesdeed (" + paramsNames + ") values " +
+                //"('" + r.ToString() + "','" + requestPartyMasterObj.scheme_name + "'," +
+                //"'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
+                //"'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
+                //"'" + requestPartyMasterObj.pde_number + "','" + requestPartyMasterObj.token_date_and_time + "'," +
+                //"'" + requestPartyMasterObj.register_number + "','" + requestPartyMasterObj.register_date + "'," +
+                //"'" + requestPartyMasterObj.delivery_date + "','" + requestPartyMasterObj.delivery_person + "'," +
+                //"'" + requestPartyMasterObj.file_url + "','" + requestPartyMasterObj.status + "'," +
+                //"'" + DateTime.Now + "','" + DateTime.Now + "')";
                 cmd.ExecuteNonQuery();
                 cmd.Clone();
                 cn.Close();
                 responseObj.status = 200;
                 responseObj.message = "Salesdeed added successfilly.";
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            catch (Exception ex)
+            {
+                responseObj.status = 500;
+                responseObj.message = "something went wrong." + ex.ToString();
+                responseObj.data = dt;
+                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+            }
+            finally
+            {
+                cn.Close();
+            }
+        }
+
+        [Route("api/salesdeed/{id}")]
+        [HttpPut]
+        public HttpResponseMessage updateSalesdeed(int id, [FromBody] RequestPartyMasterObj requestPartyMasterObj)
+        {
+            SqlCommand cmd = new SqlCommand();
+            DataTable dt = new DataTable();
+            try
+            {
+                int r = 1;
+                cn.Open();
+                SqlCommand scmd = new SqlCommand("Select max(salesdeed_id) from salesdeed", cn);
+                SqlDataReader sdr = scmd.ExecuteReader();
+                if (sdr.Read())
+                {
+                    string d = sdr[0].ToString();
+                    if (d == "")
+                    {
+
+                    }
+                    else
+                    {
+                        r = Convert.ToInt32(sdr[0].ToString());
+                        r = r + 1;
+                    }
+
+                }
+                cn.Close();
+                string status = "pending";
+                if (requestPartyMasterObj.is_signed == "true" && requestPartyMasterObj.pde_number == "" && requestPartyMasterObj.token_date_and_time == "")
+                {
+                    status = "signed";
+                }
+                else if (requestPartyMasterObj.is_signed == "true" && requestPartyMasterObj.pde_number != "" && requestPartyMasterObj.token_date_and_time != ""
+                   && requestPartyMasterObj.register_number == "" && requestPartyMasterObj.register_date == "")
+                {
+                    status = "token_done";
+                }
+                else if (requestPartyMasterObj.register_number != "" && requestPartyMasterObj.register_date != "" && requestPartyMasterObj.delivery_date == "" && requestPartyMasterObj.delivery_person == "")
+                {
+                    status = "registered";
+                }
+                else if (requestPartyMasterObj.delivery_date != "" && requestPartyMasterObj.delivery_person != "")
+                {
+                    status = "deliver";
+                }
+
+                string commond = "update salesdeed set " +
+                    "is_signed='" + requestPartyMasterObj.is_signed + "'," +
+                    "pde_number='" + requestPartyMasterObj.pde_number + "'," +
+                    "token_date_and_time='" + requestPartyMasterObj.token_date_and_time + "'," +
+                    "register_number='" + requestPartyMasterObj.register_number + "'," +
+                    "register_date='" + requestPartyMasterObj.register_date + "'," +
+                    "delivery_date='" + requestPartyMasterObj.delivery_date + "'," +
+                    "delivery_person='" + requestPartyMasterObj.delivery_person + "'," +
+                    "status='" + status.ToString() + "'," +
+                    "update_at='" + DateTime.Now + "'" +
+                    "where id='" + requestPartyMasterObj.id + "'";
+                //if (requestPartyMasterObj.pde_number != ""&& requestPartyMasterObj.token_date_and_time != "" )delivery_date,delivery_person
+                //{
+                //    paramsNames = "agreement_id,date,scheme_name,unit_no,name,inword_no,is_signed,pde_number,token_date_and_time,register_number,register_date,delivery_date,delivery_person,file_url,status,created_at,update_at";
+                //    commond = "insert into agreement (" + paramsNames + ") values " +
+                //    "('" + r.ToString() + "','" + requestPartyMasterObj.scheme_name + "'," +
+                //    "'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
+                //    "'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
+                //    "'" + requestPartyMasterObj.pde_number + "','" + requestPartyMasterObj.token_date_and_time + "'," +
+                //    "'" + requestPartyMasterObj.register_number + "','" + requestPartyMasterObj.register_date + "'," +
+                //    "'" + requestPartyMasterObj.delivery_date + "','" + requestPartyMasterObj.delivery_person + "'," +
+                //    "'" + requestPartyMasterObj.file_url + "','" + requestPartyMasterObj.status + "'," +
+                //    "'" + DateTime.Now + "','" + DateTime.Now + "')";
+                //}
+
+                cn.Open();
+                cmd.Connection = cn;
+                cmd.CommandText = commond;
+                cmd.ExecuteNonQuery();
+                cmd.Clone();
+                cn.Close();
+                responseObj.status = 200;
+                responseObj.message = "Sales deed Update successfilly.";
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
