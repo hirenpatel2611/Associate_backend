@@ -332,6 +332,13 @@ namespace associet_backend.Controllers
                 responseObj.status = 200;
                 responseObj.message = "Agreement added successfilly.";
                 responseObj.data = dt;
+                cn.Open();
+                cmd.Connection = cn;
+                cmd.CommandText = "update inword_docs set (status,docs_id,update_at) values " +
+                    "('" + status.ToString() + "','" + r.ToString() + "','" + DateTime.Now + "') where inword_no='"+ requestPartyMasterObj.inword_no + "'";
+                cmd.ExecuteNonQuery();
+                cmd.Clone();
+                cn.Close();
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
             catch (Exception ex)

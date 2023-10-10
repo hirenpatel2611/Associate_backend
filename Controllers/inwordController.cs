@@ -68,7 +68,9 @@ namespace associet_backend.Controllers
             public string pan_no { get; set; }
             public string adhar_number { get; set; }
             public string contact_number { get; set; }
+            public string status { get; set; }
             public string address { get; set; }
+            public string docs_id { get; set; }
             public string created_at { get; set; }
             public string update_at { get; set; }
         }
@@ -147,6 +149,8 @@ namespace associet_backend.Controllers
                         LlistInwordResObj.address = reader["address"].ToString();
                         LlistInwordResObj.created_at = reader["created_at"].ToString();
                         LlistInwordResObj.update_at = reader["update_at"].ToString();
+                        LlistInwordResObj.docs_id = reader["docs_id"].ToString();
+                        LlistInwordResObj.status = reader["status"].ToString();
 
                         data.Add(LlistInwordResObj);
                     }
