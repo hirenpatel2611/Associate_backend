@@ -275,75 +275,73 @@ namespace associet_backend.Controllers
             try
             {
                 //SqlCommand scmd = new SqlCommand("Select max(agreement_id,) from agreement", cn);
-                int r = 1;
+                int foundedIward = 0;
                 cn.Open();
-                
-
-                SqlCommand scmd = new SqlCommand("Select max(agreement_id) from agreement", cn);
-                SqlDataReader sdr = scmd.ExecuteReader();
-                if (sdr.Read())
+                SqlCommand scmdinword = new SqlCommand("Select * from inword_docs where id='" + requestPartyMasterObj.inword_no + "'", cn);
+                SqlDataReader sdrinword = scmdinword.ExecuteReader();
+                if (sdrinword.Read())
                 {
-                    string d = sdr[0].ToString();
-                    if (d == "")
-                    {
-
-                    }
-                    else
-                    {
-                        r = Convert.ToInt32(sdr[0].ToString());
-                        r = r + 1;
-                    }
-
+                    foundedIward = 1;
                 }
                 cn.Close();
-                string status = "pending";
-                if (requestPartyMasterObj.is_signed == "true")
-                {
-                    status = "signed";
-                }
-                string paramsNamesc = "agreement_id,date,scheme_name,unit_no,name,inword_no,is_signed,status,created_at,update_at";
-                //string commond = "insert into agreement (" + paramsNamesc + ") values " +
-                //    "('" + r.ToString() + "','" + requestPartyMasterObj.date + "','" + requestPartyMasterObj.scheme_name + "'," +
-                //    "'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
-                //    "'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
-                //    "'" + status.ToString() + "'," +
-                //    "'" + DateTime.Now + "','" + DateTime.Now + "')";
-                //if (requestPartyMasterObj.pde_number != ""&& requestPartyMasterObj.token_date_and_time != "" )
-                //{
-                //    paramsNames = "agreement_id,date,scheme_name,unit_no,name,inword_no,is_signed,pde_number,token_date_and_time,register_number,register_date,delivery_date,delivery_person,file_url,status,created_at,update_at";
-                //    commond = "insert into agreement (" + paramsNames + ") values " +
-                //    "('" + r.ToString() + "','" + requestPartyMasterObj.scheme_name + "'," +
-                //    "'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
-                //    "'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
-                //    "'" + requestPartyMasterObj.pde_number + "','" + requestPartyMasterObj.token_date_and_time + "'," +
-                //    "'" + requestPartyMasterObj.register_number + "','" + requestPartyMasterObj.register_date + "'," +
-                //    "'" + requestPartyMasterObj.delivery_date + "','" + requestPartyMasterObj.delivery_person + "'," +
-                //    "'" + requestPartyMasterObj.file_url + "','" + requestPartyMasterObj.status + "'," +
-                //    "'" + DateTime.Now + "','" + DateTime.Now + "')";
-                //}
 
-                cn.Open();
-                cmd.Connection = cn;
-                cmd.CommandText = "insert into agreement (" + paramsNamesc + ") values " +
-                    "('" + r.ToString() + "','" + requestPartyMasterObj.date + "','" + requestPartyMasterObj.scheme_name + "'," +
-                    "'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
-                    "'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
-                    "'" + status.ToString() + "'," +
-                    "'" + DateTime.Now + "','" + DateTime.Now + "')";
-                cmd.ExecuteNonQuery();
-                cmd.Clone();
-                cn.Close();
-                responseObj.status = 200;
-                responseObj.message = "Agreement added successfilly.";
-                responseObj.data = dt;
-                cn.Open();
-                cmd.Connection = cn;
-                cmd.CommandText = "update inword_docs set status='" + status.ToString() + "',docs_id='" + r.ToString() + "',update_at='" + DateTime.Now + "'" +
-                    " where id='"+ requestPartyMasterObj.inword_no + "'";
-                cmd.ExecuteNonQuery();
-                cmd.Clone();
-                cn.Close();
-                return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                if (foundedIward == 0)
+                {
+                    int r = 1;
+                    cn.Open();
+                    SqlCommand scmd = new SqlCommand("Select max(agreement_id) from agreement", cn);
+                    SqlDataReader sdr = scmd.ExecuteReader();
+                    if (sdr.Read())
+                    {
+                        string d = sdr[0].ToString();
+                        if (d == "")
+                        {
+
+                        }
+                        else
+                        {
+                            r = Convert.ToInt32(sdr[0].ToString());
+                            r = r + 1;
+                        }
+
+                    }
+                    cn.Close();
+                    string status = "pending";
+                    if (requestPartyMasterObj.is_signed == "true")
+                    {
+                        status = "signed";
+                    }
+                    string paramsNamesc = "agreement_id,date,scheme_name,unit_no,name,inword_no,is_signed,status,created_at,update_at";
+                    cn.Open();
+                    cmd.Connection = cn;
+                    cmd.CommandText = "insert into agreement (" + paramsNamesc + ") values " +
+                        "('" + r.ToString() + "','" + requestPartyMasterObj.date + "','" + requestPartyMasterObj.scheme_name + "'," +
+                        "'" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "'," +
+                        "'" + requestPartyMasterObj.inword_no + "','" + requestPartyMasterObj.is_signed + "'," +
+                        "'" + status.ToString() + "'," +
+                        "'" + DateTime.Now + "','" + DateTime.Now + "')";
+                    cmd.ExecuteNonQuery();
+                    cmd.Clone();
+                    cn.Close();
+                    responseObj.status = 200;
+                    responseObj.message = "Agreement added successfilly.";
+                    responseObj.data = dt;
+                    cn.Open();
+                    cmd.Connection = cn;
+                    cmd.CommandText = "update inword_docs set status='" + status.ToString() + "',docs_id='" + r.ToString() + "',update_at='" + DateTime.Now + "'" +
+                        " where id='"+ requestPartyMasterObj.inword_no + "'";
+                    cmd.ExecuteNonQuery();
+                    cmd.Clone();
+                    cn.Close();
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                }
+                else
+                {
+                    responseObj.status = 500;
+                    responseObj.message = "No any Inward found for this Document";
+                    responseObj.data = dt;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                }
             }
             catch (Exception ex)
             {
