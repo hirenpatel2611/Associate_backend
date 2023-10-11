@@ -105,6 +105,7 @@ namespace associet_backend.Controllers
             dt.Columns.Add("delivery_person");
             dt.Columns.Add("file_url");
             dt.Columns.Add("status");
+            dt.Columns.Add("docs_id");
             dt.Columns.Add("created_at");
             dt.Columns.Add("update_at");
 
@@ -273,8 +274,11 @@ namespace associet_backend.Controllers
             DataTable dt = new DataTable();
             try
             {
+                //SqlCommand scmd = new SqlCommand("Select max(agreement_id,) from agreement", cn);
                 int r = 1;
                 cn.Open();
+                
+
                 SqlCommand scmd = new SqlCommand("Select max(agreement_id) from agreement", cn);
                 SqlDataReader sdr = scmd.ExecuteReader();
                 if (sdr.Read())

@@ -149,8 +149,8 @@ namespace associet_backend.Controllers
                         LlistInwordResObj.address = reader["address"].ToString();
                         LlistInwordResObj.created_at = reader["created_at"].ToString();
                         LlistInwordResObj.update_at = reader["update_at"].ToString();
-                        LlistInwordResObj.docs_id = reader["docs_id"].ToString();
                         LlistInwordResObj.status = reader["status"].ToString();
+                        LlistInwordResObj.docs_id = reader["docs_id"].ToString();
 
                         data.Add(LlistInwordResObj);
                     }
