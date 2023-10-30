@@ -326,9 +326,21 @@ namespace associet_backend.Controllers
                     responseObj.status = 200;
                     responseObj.message = "Agreement added successfilly.";
                     responseObj.data = dt;
+
+                    cn.Open();
+                    SqlCommand scmds = new SqlCommand("Select id from agreement where agreement_id ='" + r.ToString() + "' ", cn);
+                    SqlDataReader sdrs = scmds.ExecuteReader();
+                    int agid=0;
+                    if (sdrs.Read())
+                    {
+
+                        agid = Convert.ToInt32( sdrs["id"]);
+                    }
+                    cn.Close();
+
                     cn.Open();
                     cmd.Connection = cn;
-                    cmd.CommandText = "update inword_docs set status='" + status.ToString() + "',docs_id='" + r.ToString() + "',update_at='" + DateTime.Now + "'" +
+                    cmd.CommandText = "update inword_docs set status='" + status.ToString() + "',docs_id='" + agid + "',update_at='" + DateTime.Now + "'" +
                         " where id='"+ requestPartyMasterObj.inword_no + "'";
                     cmd.ExecuteNonQuery();
                     cmd.Clone();
