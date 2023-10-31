@@ -412,7 +412,7 @@ namespace associet_backend.Controllers
                         data.Add(LlistInwordResObj);
                     }
                     responseObjNew.status = 200;
-                    responseObjNew.message = "Data found";
+                    responseObjNew.message = "Inward Update Succesfully!";
                     responseObjNew.data = data.ToList();
                     return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
 

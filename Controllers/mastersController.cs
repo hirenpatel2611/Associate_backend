@@ -199,6 +199,27 @@ namespace associet_backend.Controllers
             DataTable dt = new DataTable();
             try
             {
+                //int r = 1;
+                //cn.Open();
+                //SqlCommand scmd = new SqlCommand("Select max(id) from party_master", cn);
+                //SqlDataReader sdr = scmd.ExecuteReader();
+                //if (sdr.Read())
+                //{
+                //    string d = sdr[0].ToString();
+                //    if (d == "")
+                //    {
+
+                //    }
+                //    else
+                //    {
+                //        r = Convert.ToInt32(sdr[0].ToString());
+                //        r = r + 1;
+                //    }
+
+                //}
+                //cn.Close();
+
+
                 cn.Open();
                 cmd.Connection = cn;
                 cmd.CommandText = "insert into party_master (name_of_company,name_of_scheme,contact_person,contact_number,address,no_of_units,created_at,update_at) values " +
