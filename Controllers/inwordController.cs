@@ -94,12 +94,12 @@ namespace associet_backend.Controllers
             var skip = (page - 1) * pageSize;
             string SQL = "select * from inword_docs where unit_no like '%" + search + "%' or name like '%" + search + "%'" +
                 "or contact_number like '%" + search + "%' ";
-            String SQLOrderBy = "ORDER BY created_at ASC ";
+            String SQLOrderBy = "ORDER BY created_at DESC ";
             String limitedSQL = commonVerb.GetPaginatedSQL(skip, pageSize, SQL, SQLOrderBy);
             SqlCommand cmd = new SqlCommand(limitedSQL, cn);
             DataTable dt = new DataTable();
 
-            int totalRows = 0;
+            decimal totalRows = 0;
             cn1.Open();
             SqlCommand countcmd = new SqlCommand(SQL, cn1);
             SqlDataReader countsdr = countcmd.ExecuteReader();
@@ -156,8 +156,9 @@ namespace associet_backend.Controllers
                     }
                     responseMeta.per_page = pageSize;
                     responseMeta.current_page = page;
-                    responseMeta.last_page = totalRows / pageSize;
-                    responseMeta.total = totalRows;
+                    decimal ttlpage = Convert.ToDecimal(Convert.ToDecimal(totalRows) / Convert.ToDecimal(pageSize));
+                    responseMeta.last_page = Convert.ToInt32(Math.Ceiling(ttlpage));
+                    responseMeta.total = Convert.ToInt32(totalRows);
                     responseMeta.current_page_record = data.Count;
 
                     responseObjNew.status = 200;

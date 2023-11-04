@@ -60,7 +60,7 @@ namespace associet_backend.Controllers
         {
             var skip = (page - 1) * pageSize;
             string SQL = "select * from party_master where name_of_company like '%" + search + "%' or name_of_scheme like '%" + search + "%'" +
-                "or contact_number like '%" + search + "%' ";
+                "or contact_person like '%" + search + "%' or contact_number like '%" + search + "%' ";
             String SQLOrderBy = "ORDER BY created_at ASC ";
             String limitedSQL = commonVerb.GetPaginatedSQL(skip, pageSize, SQL, SQLOrderBy);
             SqlCommand cmd = new SqlCommand(limitedSQL, cn);

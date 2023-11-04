@@ -43,6 +43,15 @@ namespace associet_backend.Controllers
             public CommonVeriables.ResponseMeta meta { get; set; }
         }
 
+        public class ResponseObjnew
+        {
+            public int status { get; set; }
+            public string message { get; set; }
+            public DataTable data { get; set; }
+            public CommonVeriables.ResponseMeta meta { get; set; }
+        }
+        ResponseObjnew responseObjNew = new ResponseObjnew();
+
         public class RequestPartyMasterObj
         {
             public string id { get; set; }
@@ -81,9 +90,9 @@ namespace associet_backend.Controllers
         public HttpResponseMessage Getparty(string search = "", int page = 1, int pageSize = 10)
         {
             var skip = (page - 1) * pageSize;
-            string SQL = "select * from agreement where date like '%" + search + "%' or pde_number like '%" + search + "%'" +
-                "or token_date_and_time like '%" + search + "%' ";
-            String SQLOrderBy = "ORDER BY created_at ASC ";
+            string SQL = "select * from agreement where date like '%" + search + "%' or scheme_name like '%" + search + "%' or name like '%" + search + "%'" +
+                " or pde_number like '%" + search + "%' or token_date_and_time like '%" + search + "%' ";
+            String SQLOrderBy = "ORDER BY created_at DESC ";
             String limitedSQL = commonVerb.GetPaginatedSQL(skip, pageSize, SQL, SQLOrderBy);
             SqlCommand cmd = new SqlCommand(limitedSQL, cn);
             DataTable dt = new DataTable();
@@ -107,7 +116,20 @@ namespace associet_backend.Controllers
             dt.Columns.Add("created_at");
             dt.Columns.Add("update_at");
 
+            decimal totalRows = 0;
+            cn1.Open();
+            SqlCommand countcmd = new SqlCommand(SQL, cn1);
+            SqlDataReader countsdr = countcmd.ExecuteReader();
+            if (countsdr.HasRows)
+            {
+                while (countsdr.Read())
+                {
+                    totalRows++;
+                }
 
+            }
+            countcmd.Dispose();
+            cn1.Close();
             try
             {
                 cn.Open();
@@ -147,10 +169,18 @@ namespace associet_backend.Controllers
                                     reader["file_url"].ToString(), reader["status"].ToString(),
                                     reader["created_at"].ToString(), reader["update_at"].ToString());
                     }
-                    responseObj.status = 200;
-                    responseObj.message = "Agreement found";
-                    responseObj.data = dt;
-                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+                    responseMeta.per_page = pageSize;
+                    responseMeta.current_page = page;
+                    decimal ttlpage = Convert.ToDecimal(Convert.ToDecimal(totalRows) / Convert.ToDecimal(pageSize));
+                    responseMeta.last_page = Convert.ToInt32(Math.Ceiling(ttlpage));
+                    responseMeta.total = Convert.ToInt32(totalRows);
+                    responseMeta.current_page_record = dt.Rows.Count;
+
+                    responseObjNew.status = 200;
+                    responseObjNew.message = "Data found";
+                    responseObjNew.data = dt;
+                    responseObjNew.meta = responseMeta;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
                 }
                 else
                 {

@@ -62,14 +62,30 @@ namespace associet_backend.Controllers
             public string file_url { get; set; }
             public string status { get; set; }
         }
+
+        public class ResponseObjnew
+        {
+            public int status { get; set; }
+            public string message { get; set; }
+            public DataTable data { get; set; }
+            public CommonVeriables.ResponseMeta meta { get; set; }
+        }
+        ResponseObjnew responseObjNew = new ResponseObjnew();
+
         RequestPartyMasterObj requestPartyMasterObj = new RequestPartyMasterObj();
         ResponseObj responseObj = new ResponseObj();
+        CommonVeriables.ResponseMeta responseMeta = new CommonVeriables.ResponseMeta();
 
         [Route("api/salesdeed")]
         [HttpGet]
         public HttpResponseMessage GetSalesDeedList(string search = "", int page = 1, int pageSize = 10)
         {
-            SqlCommand cmd = new SqlCommand("select * from salesdeed", cn);
+            var skip = (page - 1) * pageSize;
+            string SQL = "select * from salesdeed where date like '%" + search + "%' or scheme_name like '%" + search + "%' or name like '%" + search + "%'" +
+                " or pde_number like '%" + search + "%' or token_date_and_time like '%" + search + "%' ";
+            String SQLOrderBy = "ORDER BY created_at DESC ";
+            String limitedSQL = commonVerb.GetPaginatedSQL(skip, pageSize, SQL, SQLOrderBy);
+            SqlCommand cmd = new SqlCommand(limitedSQL, cn);
             DataTable dt = new DataTable();
             dt.Columns.Add("id");
             dt.Columns.Add("salesdeed_id");
@@ -90,6 +106,20 @@ namespace associet_backend.Controllers
             dt.Columns.Add("created_at");
             dt.Columns.Add("update_at");
 
+            decimal totalRows = 0;
+            cn1.Open();
+            SqlCommand countcmd = new SqlCommand(SQL, cn1);
+            SqlDataReader countsdr = countcmd.ExecuteReader();
+            if (countsdr.HasRows)
+            {
+                while (countsdr.Read())
+                {
+                    totalRows++;
+                }
+
+            }
+            countcmd.Dispose();
+            cn1.Close();
 
             try
             {
@@ -130,10 +160,20 @@ namespace associet_backend.Controllers
                                     reader["file_url"].ToString(), reader["status"].ToString(),
                                     reader["created_at"].ToString(), reader["update_at"].ToString());
                     }
-                    responseObj.status = 200;
-                    responseObj.message = "Salesdeed found";
-                    responseObj.data = dt;
-                    return Request.CreateResponse(HttpStatusCode.OK, responseObj);
+
+                    responseMeta.per_page = pageSize;
+                    responseMeta.current_page = page;
+                    decimal ttlpage = Convert.ToDecimal(Convert.ToDecimal(totalRows) / Convert.ToDecimal(pageSize));
+                    responseMeta.last_page = Convert.ToInt32(Math.Ceiling(ttlpage));
+                    responseMeta.total = Convert.ToInt32(totalRows);
+                    responseMeta.current_page_record = dt.Rows.Count;
+
+
+                    responseObjNew.status = 200;
+                    responseObjNew.message = "Data found";
+                    responseObjNew.data = dt;
+                    responseObjNew.meta = responseMeta;
+                    return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
                 }
                 else
                 {
