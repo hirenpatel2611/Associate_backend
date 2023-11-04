@@ -1,8 +1,8 @@
+using associet_backend.Areas.HelpPage.ModelDescriptions;
+using associet_backend.Areas.HelpPage.Models;
 using System;
 using System.Web.Http;
 using System.Web.Mvc;
-using associet_backend.Areas.HelpPage.ModelDescriptions;
-using associet_backend.Areas.HelpPage.Models;
 
 namespace associet_backend.Areas.HelpPage.Controllers
 {

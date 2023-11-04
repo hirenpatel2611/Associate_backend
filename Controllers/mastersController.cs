@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -29,7 +27,7 @@ namespace associet_backend.Controllers
             public string update_at { get; set; }
         }
 
-        
+
 
         public class ResponseObj
         {
@@ -49,12 +47,12 @@ namespace associet_backend.Controllers
             public string address { get; set; }
             public string no_of_units { get; set; }
         }
-        
+
         RequestPartyMasterObj requestPartyMasterObj = new RequestPartyMasterObj();
         ResponseObj responseObj = new ResponseObj();
         CommonVeriables.ResponseMeta responseMeta = new CommonVeriables.ResponseMeta();
 
-        
+
 
         [Route("api/masters/party")]
         [HttpGet]
@@ -106,7 +104,7 @@ namespace associet_backend.Controllers
 
                     responseMeta.per_page = pageSize;
                     responseMeta.current_page = page;
-                    responseMeta.last_page = totalRows/pageSize;
+                    responseMeta.last_page = totalRows / pageSize;
                     responseMeta.total = totalRows;
                     responseMeta.current_page_record = dt.Rows.Count;
 
@@ -152,7 +150,7 @@ namespace associet_backend.Controllers
             dt.Columns.Add("no_of_units");
             dt.Columns.Add("created_at");
             dt.Columns.Add("update_at");
-            
+
 
             try
             {
@@ -223,9 +221,9 @@ namespace associet_backend.Controllers
                 cn.Open();
                 cmd.Connection = cn;
                 cmd.CommandText = "insert into party_master (name_of_company,name_of_scheme,contact_person,contact_number,address,no_of_units,created_at,update_at) values " +
-                    "('" + requestPartyMasterObj.name_of_company + "','" + requestPartyMasterObj.name_of_scheme + "','" + requestPartyMasterObj.contact_person + "',"+
-                    "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + Convert.ToInt32(requestPartyMasterObj.no_of_units) + "','"+ DateTime.Now + "','" + DateTime.Now + "')";
-                
+                    "('" + requestPartyMasterObj.name_of_company + "','" + requestPartyMasterObj.name_of_scheme + "','" + requestPartyMasterObj.contact_person + "'," +
+                    "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + Convert.ToInt32(requestPartyMasterObj.no_of_units) + "','" + DateTime.Now + "','" + DateTime.Now + "')";
+
 
                 cmd.ExecuteNonQuery();
                 cmd.Clone();
@@ -256,7 +254,7 @@ namespace associet_backend.Controllers
             DataTable dt = new DataTable();
             try
             {
-                SqlCommand ucmd = new SqlCommand("UPDATE party_master SET name_of_company=@name_of_company,name_of_scheme=@name_of_scheme,contact_person=@contact_person,"+
+                SqlCommand ucmd = new SqlCommand("UPDATE party_master SET name_of_company=@name_of_company,name_of_scheme=@name_of_scheme,contact_person=@contact_person," +
                     "contact_number=@contact_number,address=@address,no_of_units=@no_of_units,update_at=@update_at  Where  id='" + id + "'", cn);
 
                 ucmd.Parameters.Add("@name_of_company", SqlDbType.NVarChar).Value = requestPartyMasterObj.name_of_company;
@@ -293,7 +291,7 @@ namespace associet_backend.Controllers
         [Route("api/masters/schemes")]
         [HttpGet]
         public HttpResponseMessage GetSchemes()
-      {
+        {
             var paramsD = Request.RequestUri.Query;
             string[] paramsDArray = paramsD.Split('?');
             string searchQuery = "";
@@ -303,7 +301,7 @@ namespace associet_backend.Controllers
                 string[] paramsFinal = paramsDArray[1].Split('=');
                 searchQuery = paramsFinal[1].ToString();
             }
-            SqlCommand cmd = new SqlCommand("select * from party_master where name_of_scheme like '%"+ searchQuery + "%'", cn);
+            SqlCommand cmd = new SqlCommand("select * from party_master where name_of_scheme like '%" + searchQuery + "%'", cn);
             DataTable dt = new DataTable();
             dt.Columns.Add("id");
             dt.Columns.Add("name_of_company");

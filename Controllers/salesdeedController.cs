@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -148,7 +146,7 @@ namespace associet_backend.Controllers
             catch (Exception ex)
             {
                 responseObj.status = 500;
-                responseObj.message = "something went wrong."+ ex.ToString();
+                responseObj.message = "something went wrong." + ex.ToString();
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }
@@ -238,7 +236,7 @@ namespace associet_backend.Controllers
             catch (Exception ex)
             {
                 responseObj.status = 500;
-                responseObj.message = "something went wrong."+ex.ToString();
+                responseObj.message = "something went wrong." + ex.ToString();
                 responseObj.data = dt;
                 return Request.CreateResponse(HttpStatusCode.OK, responseObj);
             }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -142,12 +140,12 @@ namespace associet_backend.Controllers
                         dt.Rows.Add(reader["id"].ToString(), reader["agreement_id"].ToString(),
                                     reader["date"].ToString(), name_of_scheme.ToString(),
                                     unit_no.ToString(), reader["name"].ToString(),
-                                    reader["inword_no"].ToString(), reader["is_signed"].ToString(), 
+                                    reader["inword_no"].ToString(), reader["is_signed"].ToString(),
                                     reader["pde_number"].ToString(), reader["token_date_and_time"].ToString(),
                                     reader["register_number"].ToString(), reader["register_date"].ToString(),
                                     reader["delivery_date"].ToString(), reader["delivery_person"].ToString(),
                                     reader["file_url"].ToString(), reader["status"].ToString(),
-                                    reader["created_at"].ToString(),reader["update_at"].ToString());
+                                    reader["created_at"].ToString(), reader["update_at"].ToString());
                     }
                     responseObj.status = 200;
                     responseObj.message = "Agreement found";
@@ -330,18 +328,18 @@ namespace associet_backend.Controllers
                     cn.Open();
                     SqlCommand scmds = new SqlCommand("Select id from agreement where agreement_id ='" + r.ToString() + "' ", cn);
                     SqlDataReader sdrs = scmds.ExecuteReader();
-                    int agid=0;
+                    int agid = 0;
                     if (sdrs.Read())
                     {
 
-                        agid = Convert.ToInt32( sdrs["id"]);
+                        agid = Convert.ToInt32(sdrs["id"]);
                     }
                     cn.Close();
 
                     cn.Open();
                     cmd.Connection = cn;
                     cmd.CommandText = "update inword_docs set status='" + status.ToString() + "',docs_id='" + agid + "',update_at='" + DateTime.Now + "'" +
-                        " where id='"+ requestPartyMasterObj.inword_no + "'";
+                        " where id='" + requestPartyMasterObj.inword_no + "'";
                     cmd.ExecuteNonQuery();
                     cmd.Clone();
                     cn.Close();
@@ -399,11 +397,13 @@ namespace associet_backend.Controllers
                 if (requestPartyMasterObj.is_signed == "true" && requestPartyMasterObj.pde_number == "" && requestPartyMasterObj.token_date_and_time == "")
                 {
                     status = "signed";
-                }else if (requestPartyMasterObj.is_signed == "true" && requestPartyMasterObj.pde_number != "" && requestPartyMasterObj.token_date_and_time != ""
-                    && requestPartyMasterObj.register_number == "" && requestPartyMasterObj.register_date == "")
+                }
+                else if (requestPartyMasterObj.is_signed == "true" && requestPartyMasterObj.pde_number != "" && requestPartyMasterObj.token_date_and_time != ""
+                   && requestPartyMasterObj.register_number == "" && requestPartyMasterObj.register_date == "")
                 {
                     status = "token_done";
-                } else if (requestPartyMasterObj.register_number != "" && requestPartyMasterObj.register_date != "" && requestPartyMasterObj.delivery_date == "" && requestPartyMasterObj.delivery_person == "")
+                }
+                else if (requestPartyMasterObj.register_number != "" && requestPartyMasterObj.register_date != "" && requestPartyMasterObj.delivery_date == "" && requestPartyMasterObj.delivery_person == "")
                 {
                     status = "registered";
                 }
@@ -412,16 +412,16 @@ namespace associet_backend.Controllers
                     status = "deliver";
                 }
 
-                string commond = "update agreement set "+
+                string commond = "update agreement set " +
                     "is_signed='" + requestPartyMasterObj.is_signed + "'," +
-                    "pde_number='" + requestPartyMasterObj.pde_number + "',"+
+                    "pde_number='" + requestPartyMasterObj.pde_number + "'," +
                     "token_date_and_time='" + requestPartyMasterObj.token_date_and_time + "'," +
                     "register_number='" + requestPartyMasterObj.register_number + "'," +
                     "register_date='" + requestPartyMasterObj.register_date + "'," +
                     "delivery_date='" + requestPartyMasterObj.delivery_date + "'," +
                     "delivery_person='" + requestPartyMasterObj.delivery_person + "'," +
                     "status='" + status.ToString() + "'," +
-                    "update_at='" + DateTime.Now + "'"+
+                    "update_at='" + DateTime.Now + "'" +
                     "where id='" + requestPartyMasterObj.id + "'";
                 //if (requestPartyMasterObj.pde_number != ""&& requestPartyMasterObj.token_date_and_time != "" )delivery_date,delivery_person
                 //{

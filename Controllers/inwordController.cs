@@ -43,7 +43,7 @@ namespace associet_backend.Controllers
 
         public class RequestPartyMasterObj
         {
-            public int id{ get; set; }
+            public int id { get; set; }
             public string inword_no { get; set; }
             public string date { get; set; }
             public string docs_type { get; set; }
@@ -165,7 +165,7 @@ namespace associet_backend.Controllers
                     responseObjNew.data = data.ToList();
                     responseObjNew.meta = responseMeta;
                     return Request.CreateResponse(HttpStatusCode.OK, responseObjNew);
-                    
+
                 }
                 else
                 {
@@ -291,10 +291,10 @@ namespace associet_backend.Controllers
 
                 cn.Open();
                 cmd.Connection = cn;
-                cmd.CommandText = "insert into inword_docs "+
+                cmd.CommandText = "insert into inword_docs " +
                     "(inword_no,scheme_name,unit_no,name,date,docs_type,pan_no,adhar_number,contact_number,address,created_at,update_at) values " +
-                    "('"+ r.ToString() +"','" + requestPartyMasterObj.scheme_name + "','" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "','" + requestPartyMasterObj.date + "',"+
-                    "'" + requestPartyMasterObj.docs_type + "','" + requestPartyMasterObj.pan_no + "','" + requestPartyMasterObj.adhar_number + "',"+
+                    "('" + r.ToString() + "','" + requestPartyMasterObj.scheme_name + "','" + requestPartyMasterObj.unit_no + "','" + requestPartyMasterObj.name + "','" + requestPartyMasterObj.date + "'," +
+                    "'" + requestPartyMasterObj.docs_type + "','" + requestPartyMasterObj.pan_no + "','" + requestPartyMasterObj.adhar_number + "'," +
                     "'" + requestPartyMasterObj.contact_number + "','" + requestPartyMasterObj.address + "','" + DateTime.Now + "','" + DateTime.Now + "')";
                 cmd.ExecuteNonQuery();
                 cmd.Clone();
@@ -328,7 +328,7 @@ namespace associet_backend.Controllers
                 cn.Open();
                 cmd.Connection = cn;
                 cmd.CommandText = "update inword_docs set " +
-                    "scheme_name='"+ requestPartyMasterObj.scheme_name + "',"+
+                    "scheme_name='" + requestPartyMasterObj.scheme_name + "'," +
                     "unit_no='" + requestPartyMasterObj.unit_no + "'," +
                     "name='" + requestPartyMasterObj.name + "'," +
                     "date='" + requestPartyMasterObj.date + "'," +
@@ -337,7 +337,7 @@ namespace associet_backend.Controllers
                     "adhar_number='" + requestPartyMasterObj.adhar_number + "'," +
                     "contact_number='" + requestPartyMasterObj.contact_number + "'," +
                     "address='" + requestPartyMasterObj.address + "'," +
-                    "update_at='" + DateTime.Now + "' where id='"+ requestPartyMasterObj.id + "'";
+                    "update_at='" + DateTime.Now + "' where id='" + requestPartyMasterObj.id + "'";
 
                 cmd.ExecuteNonQuery();
                 cmd.Clone();
@@ -393,7 +393,7 @@ namespace associet_backend.Controllers
                     List<listInwordResObj> data = new List<listInwordResObj>();
                     while (reader.Read())
                     {
-                        
+
                         listInwordResObj LlistInwordResObj = new listInwordResObj();
                         LlistInwordResObj.id = Convert.ToInt32(reader["id"]);
                         LlistInwordResObj.date = reader["date"].ToString();

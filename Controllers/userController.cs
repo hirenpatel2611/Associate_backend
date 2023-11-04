@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -80,7 +78,7 @@ namespace associet_backend.Controllers
         [HttpGet]
         public HttpResponseMessage Get(int id)
         {
-            SqlCommand cmd = new SqlCommand("select * from user_master where id='"+ id +"'", cn);
+            SqlCommand cmd = new SqlCommand("select * from user_master where id='" + id + "'", cn);
             DataSet ds = new DataSet();
             DataTable dt = new DataTable();
             dt.Columns.Add("id");
@@ -128,7 +126,7 @@ namespace associet_backend.Controllers
         [HttpPost]
         public HttpResponseMessage Login([FromBody] RequestLoginObj requestLoginObj)
         {
-            SqlCommand cmd = new SqlCommand("select * from user_master where user_name='"+ requestLoginObj.user_name+ "' and password='"+ requestLoginObj.password+"'", cn);
+            SqlCommand cmd = new SqlCommand("select * from user_master where user_name='" + requestLoginObj.user_name + "' and password='" + requestLoginObj.password + "'", cn);
             DataSet ds = new DataSet();
             DataTable dt = new DataTable();
             dt.Columns.Add("id");
@@ -140,7 +138,7 @@ namespace associet_backend.Controllers
             {
                 cn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
-                if(reader.HasRows)
+                if (reader.HasRows)
                 {
                     while (reader.Read())
                     {
@@ -150,7 +148,8 @@ namespace associet_backend.Controllers
                     responseObj.message = "Login success.";
                     responseObj.user = dt;
                     return Request.CreateResponse(HttpStatusCode.OK, responseObj);
-                } else
+                }
+                else
                 {
                     responseObj.status = 401;
                     responseObj.message = "User and password incorrect. try again.";
